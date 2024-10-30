@@ -113,6 +113,14 @@ df = pd.DataFrame(data)
 # Print the DataFrame to verify
 print(df)
 
+"""Splitting data training dan testing"""
+
+train_data, test_data = train_test_split(df, test_size=0.3, random_state=42)
+
+# Optionally reset the indices of the train and test DataFrames
+train_data.reset_index(drop=True, inplace=True)
+test_data.reset_index(drop=True, inplace=True)
+
 """Proses tokenisasi"""
 
 df['sequence'] = df['sequence'].apply(lambda x: ' '.join(x))
@@ -168,10 +176,9 @@ oc_svm = OneClassSVM(kernel='rbf', gamma='auto', nu=0.1)
 # Fit model on normal data
 oc_svm.fit(X)
 
-new_raw_data = load_adfa_ids('datasets/Full_Trace_Validation_Data/')
-new_df = pd.DataFrame({'sequence': new_raw_data})
+new_raw_data = test_data
 new_tokenized = tokenizer(
-    new_df['sequence'].tolist(),
+    new_raw_data['sequence'].tolist(),
     padding='max_length',
     truncation=True,
     max_length=100,
@@ -185,11 +192,11 @@ with torch.no_grad():
     new_pooled_embeddings = torch.mean(new_embeddings, dim=1)
 
 # Predict on new data
-new_X = new_pooled_embeddings.numpy() # Your new dataset here
+new_data = new_pooled_embeddings.numpy() # Your new dataset here
 
 """Analisa Anomali"""
 
-predictions = oc_svm.predict(new_X)
+predictions = oc_svm.predict(new_data)
 
 # Identify anomalies
 anomalies = predictions == -1
@@ -214,6 +221,7 @@ true_labels = [1] * num_normal + [0] * num_anomalous
 # Convert -1 and 1 predictions to 0 and 1 for compatibility
 predicted_labels = (predictions + 1) // 2  # Convert -1 to 0 and 1 to 1
 
+from sklearn.metrics import precision_score, recall_score, f1_score
 # Calculate metrics
 accuracy = accuracy_score(true_labels, predicted_labels)
 precision = precision_score(true_labels, predicted_labels)
