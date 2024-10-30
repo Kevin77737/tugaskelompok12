@@ -239,15 +239,24 @@ print(classification_report(true_labels, predicted_labels))
 
 """gambar hasil"""
 
-pca = PCA(n_components=2)
+from sklearn.decomposition import PCA
+print(new_data.shape)  # This will output (n_samples, n_features)
+
+# Apply PCA
+pca = PCA(n_components=1)
 reduced_data = pca.fit_transform(new_data)
 
 # Plot
 plt.figure(figsize=(10, 6))
-plt.scatter(reduced_data[~anomalies, 0], reduced_data[~anomalies, 1], label='Normal', alpha=0.5)
-plt.scatter(reduced_data[anomalies, 0], reduced_data[anomalies, 1], label='Anomalies', color='red')
+
+# Scatter plot for normal data (only one component)
+plt.scatter(reduced_data[~anomalies, 0], [0] * len(reduced_data[~anomalies]), label='Normal', alpha=0.5)
+
+# Scatter plot for anomaly data (only one component)
+plt.scatter(reduced_data[anomalies, 0], [0] * len(reduced_data[anomalies]), label='Anomalies', color='red')
+
 plt.legend()
 plt.title('Anomaly Detection using One-Class SVM')
 plt.xlabel('PCA Component 1')
-plt.ylabel('PCA Component 2')
+plt.ylabel('Value (constant, since n_components=1)')
 plt.show()
