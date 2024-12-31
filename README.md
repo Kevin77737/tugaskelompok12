@@ -1,4 +1,5 @@
 # tugaskelompok12
 
-<small> download datasetnya dulu, unzip foldernya dan masukan folder tersebut ke zip baru
+<small> (edit) menggunakan dataset UNSW NB-15, sudah ada langsung file csv-nya
+
 
